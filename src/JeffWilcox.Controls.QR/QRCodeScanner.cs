@@ -213,11 +213,6 @@ namespace JeffWilcox.Controls
                 {
                     handler(this, new ScanCompleteEventArgs(result.Text));
                 }
-
-                if (ContinuousScanning)
-                {
-                    StartScanning();
-                }
             }
         }
 
@@ -229,7 +224,7 @@ namespace JeffWilcox.Controls
                 {
                     // 2-2-2012 - Rowdy.nl
                     // Focus the camera for better recognition of QR code's
-                    if (_photoCamera.IsFocusSupported)
+                    if (_photoCamera.IsFocusSupported && !ContinuousScanning)
                     {
                         _photoCamera.Focus();
                     }
@@ -240,8 +235,16 @@ namespace JeffWilcox.Controls
                     var binaryBitmap = new BinaryBitmap(binarizer);
                     var result = _reader.decode(binaryBitmap, QRCodeHint);
 
-                    StopScanning();
                     OnResult(result);
+
+                    if (!ContinuousScanning)
+                    {
+                        StopScanning();
+                    }
+                    else 
+                    {
+                        Dispatcher.BeginInvoke(Scan);
+                    }
                 }
                 catch (ReaderException)
                 {
@@ -252,6 +255,17 @@ namespace JeffWilcox.Controls
                 catch (Exception ex)
                 {
                     OnError(ex);
+                }
+            }
+        }
+
+        public void FocusCamera()
+        {
+            if (IsScanning && _initialized && _photoCamera != null && _luminanceSource != null && _reader != null)
+            {
+                if (_photoCamera.IsFocusSupported)
+                {
+                    _photoCamera.Focus();
                 }
             }
         }
