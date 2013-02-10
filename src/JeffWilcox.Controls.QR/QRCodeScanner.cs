@@ -73,6 +73,28 @@ namespace JeffWilcox.Controls
                 new PropertyMetadata(false));
         #endregion public bool IsScanning
 
+        #region public bool ContinuousScanning
+        /// <summary>
+        /// Gets a value indicating whether the code scanner is currently
+        /// scanning. It should not be set.
+        /// </summary>
+        public bool ContinuousScanning
+        {
+            get { return (bool)GetValue(ContinuousScanningProperty); }
+            private set { SetValue(ContinuousScanningProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the ContinuousScanning dependency property.
+        /// </summary>
+        public static readonly DependencyProperty ContinuousScanningProperty =
+            DependencyProperty.Register(
+                "ContinuousScanning",
+                typeof(bool),
+                typeof(QRCodeScanner),
+                new PropertyMetadata(false));
+        #endregion public bool ContinuousScanning
+
         /// <summary>
         /// Provides information about the scanned text when a scan is complete
         /// and scanning is stopped.
@@ -91,6 +113,7 @@ namespace JeffWilcox.Controls
         public QRCodeScanner() : base()
         {
             DefaultStyleKey = typeof(QRCodeScanner);
+            ContinuousScanning = true;
         }
 
         public override void OnApplyTemplate()
@@ -189,6 +212,11 @@ namespace JeffWilcox.Controls
                 if (handler != null)
                 {
                     handler(this, new ScanCompleteEventArgs(result.Text));
+                }
+
+                if (ContinuousScanning)
+                {
+                    StartScanning();
                 }
             }
         }
